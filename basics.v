@@ -37,11 +37,17 @@ Definition negb (b:bool) : bool :=
   | false => true
   end.
 
-Definition andb (b1:bool) (b2:bool) : bool :=
-  match b1, b2 with
-  | true, true => true
-  | _, _ => false
-  end.
+(* Definition andb (b1:bool) (b2:bool) : bool := *)
+(*   match b1, b2 with *)
+(*   | true, true => true *)
+(*   | _, _ => false *)
+(*   end. *)
+
+Definition andb (b1 : bool) (b2 : bool) : bool :=
+  match b1 with
+  | true => b2
+  | false => false
+end.
 
 Definition orb (b1:bool) (b2:bool) : bool :=
   match b1, b2 with
@@ -237,3 +243,107 @@ Example test_ltb2: (ltb 2 4) = true.
 Proof. simpl. reflexivity.  Qed.
 Example test_ltb3: (ltb 4 2) = false.
 Proof. simpl. reflexivity.  Qed.
+
+Theorem plus_O_n : forall n : nat, 0 + n = n.
+Proof.
+  intros n. simpl. reflexivity. Qed.
+
+(* Theorem plus_n_O : forall n : nat, n + 0 = n. *)
+(* Proof. *)
+(*   intros n. simpl. reflexivity. Qed. *)
+
+Theorem plus_1_1 : forall n : nat, 1 + n = S n.
+Proof.
+  intros n. simpl. reflexivity. Qed.
+
+Theorem mult_0_1 : forall n : nat, 0 * n = 0.
+Proof.
+  intros n. reflexivity. Qed.
+
+Theorem plus_id_example : forall n m : nat,
+    n = m ->
+    n + n = m + m.
+
+Proof.
+  intros n m.
+  intros H.
+  rewrite -> H.
+  reflexivity. Qed.
+
+Theorem plus_id_exericise : forall n m o : nat,
+    n = m -> m = o -> n + m = m + o.
+Proof.
+  intros n m o.
+  intros H1.
+  intros H2.
+  rewrite -> H1.
+  rewrite <- H2.
+  reflexivity.
+  Qed.
+
+Theorem mult_0_plus : forall n m : nat,
+    (0 + n) * m = n * m.
+Proof.
+  intros n  m.
+  rewrite -> plus_O_n.
+  reflexivity. Qed.
+
+Theorem mult_S_1 : forall n m : nat,
+    m = S n -> m * (1 + n) = m * m.
+Proof.
+  intros n m.
+  intros H.
+  rewrite -> plus_1_1.
+  rewrite -> H.
+  reflexivity. Qed.
+
+
+Theorem plus_1_neq_0_firsttry : forall n : nat,
+    (n + 1) =? 0 = false.
+Proof.
+  intros n.
+  simpl.
+Abort.
+
+Theorem plus_1_neq_0 : forall n : nat,
+    (n + 1) =? 0 = false.
+Proof.
+  (* relate to nat constructor *)
+  intros n. destruct n as [| n'] eqn:E.
+  - reflexivity.
+  - reflexivity. Qed.
+
+Theorem negb_involutive : forall b : bool,
+    negb (negb b) = b.
+Proof.
+  intros b. destruct b eqn:E.
+  - reflexivity.
+  - reflexivity. Qed.
+
+Theorem andb_commutative : forall b c, andb b c = andb c b.
+Proof.
+  intros b c. destruct b eqn:Eb.
+  - destruct c eqn:Ec.
+    + reflexivity.
+    + reflexivity.
+  - destruct c eqn:Ec.
+    + reflexivity.
+    + reflexivity.
+Qed.
+
+Theorem andb_true_elim2: forall b c : bool,
+    andb b c = true -> c = true.
+Proof.
+  (* intros b c. *)
+  (* intros H. *)
+  (* destruct b eqn:Eb. *)
+  (* - rewrite <- H. *)
+  (*   reflexivity. *)
+  (* - rewrite <- H. *)
+  (*   reflexivity. *)
+  intros [] [].
+  - reflexivity.
+  - simpl. intros H. rewrite -> H. reflexivity.
+  - reflexivity.
+  - simpl. intros H. rewrite -> H. reflexivity.
+Qed.
