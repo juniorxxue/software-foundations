@@ -155,5 +155,85 @@ Compute (minus 10 8).
 
 End NatPlaygroud2.
 
+Fixpoint factorial (n:nat) : nat :=
+  match n with
+  | O => S O
+  | S n' => mult n (factorial n')
+  end.
+
+Compute (factorial 3).
+Compute (factorial 5).
+
+Notation "x + y" := (plus x y) (at level 50, left associativity) : nat_scope.
+Notation "x - y" := (minus x y) (at level 50, left associativity) : nat_scope.
+Notation "x * y" := (mult x y) (at level 40, left associativity) : nat_scope.
+
+Check ((0 + 1) + 1).
+
+Fixpoint eqb (n m : nat) : bool :=
+  match n with
+  | O => match m with
+         | O => true
+         | S m' => false
+         end
+  | S n' => match m with
+            | O => false
+            | S m' => eqb n' m'
+            end
+  end.
+
+Compute (eqb 4 4).
+
+(** less than and equal <= **)
+Fixpoint leb (n m: nat) : bool :=
+  match n with
+  | O => true
+  | S n' => match m with
+            | O => false
+            | S m' => leb n' m'
+            end
+  end.
+
+Example test_leb1: (leb 2 2) = true.
+Proof. simpl. reflexivity.  Qed.
+Example test_leb2: (leb 2 4) = true.
+Proof. simpl. reflexivity.  Qed.
+Example test_leb3: (leb 4 2) = false.
+Proof. simpl. reflexivity.  Qed.
+
+Notation "x =? y" := (eqb x y) (at level 70) : nat_scope.
+Notation "x <=? y" := (leb x y) (at level 70) : nat_scope.
 
 
+Example test_leb3': (4 <=? 2) = false.
+Proof. simpl. reflexivity.  Qed.
+
+(**
+Fixpoint ltb (n m: nat) : bool :=
+  match n with
+  | O => match m with
+         | O => false
+         | S m' => true
+          end
+  | S n' => match m with
+            | O => false
+            | S m' => ltb n' m'
+            end
+  end.
+**)
+
+Definition ltb (n m:nat) : bool :=
+  andb (leb n m) (negb (eqb n m)).
+
+Compute (ltb 2 4).
+Compute (leb 2 4).
+Compute (negb (eqb 2 4)).
+
+Notation "x <? y" := (ltb x y) (at level 70) : nat_scope.
+
+Example test_ltb1: (ltb 2 2) = false.
+Proof. simpl. reflexivity.  Qed.
+Example test_ltb2: (ltb 2 4) = true.
+Proof. simpl. reflexivity.  Qed.
+Example test_ltb3: (ltb 4 2) = false.
+Proof. simpl. reflexivity.  Qed.
