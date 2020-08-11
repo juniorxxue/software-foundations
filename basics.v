@@ -347,3 +347,11 @@ Proof.
   - reflexivity.
   - simpl. intros H. rewrite -> H. reflexivity.
 Qed.
+
+Theorem zero_nbeq_plus_1 : forall n : nat,
+  0 =? (n + 1) = false.
+Proof.
+  intros [|n'].
+  - simpl. reflexivity.
+  - simpl. reflexivity.
+Qed.
