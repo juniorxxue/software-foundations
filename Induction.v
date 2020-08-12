@@ -71,8 +71,32 @@ Qed.
 Theorem evenb_S : forall n : nat,
   evenb (S n) = negb (evenb n).
 Proof.
-  intros n.
-  
+  intros n. induction n as [|n' IHn'].
+  - simpl. reflexivity.
+  - rewrite -> IHn'. simpl. rewrite -> negb_involutive. reflexivity.
+Qed.
+
+Theorem mult_0_plus' : forall n m : nat,
+    (0 + n) * m = n * m.
+Proof.
+  intros n m.
+  assert (H: 0 + n = n).
+  { reflexivity. }
+  rewrite -> H.
+  reflexivity.
+Qed.
+
+Theorem plus_rearrange : forall n m p q : nat,
+    (n + m) + (p + q)  = (m + n) + (p + q).
+Proof.
+  intros n m p q.
+  assert (H: n + m = m + n).
+  { rewrite -> plus_comm. reflexivity. }
+  rewrite -> H.
+  reflexivity.
+Qed.
+
+
 
 
 
