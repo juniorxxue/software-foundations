@@ -50,9 +50,9 @@ Definition andb (b1 : bool) (b2 : bool) : bool :=
 end.
 
 Definition orb (b1:bool) (b2:bool) : bool :=
-  match b1, b2 with
-  | false, false => false
-  | _, _ => true
+  match b1 with
+  | true => true
+  | false => b2
   end.
 
 Notation "x && y" := (andb x y).
