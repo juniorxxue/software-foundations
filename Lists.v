@@ -117,3 +117,61 @@ Fixpoint nonzeros (l : natlist) : natlist :=
   end.
 
 Compute (nonzeros (cons 0 (cons 1 (cons 0 (cons 1 nil))))).
+
+Fixpoint oddmembers (l : natlist) : natlist :=
+  match l with
+  | nil => nil
+  | h :: t => if (oddb h) then h :: (oddmembers t) else oddmembers t end.
+
+Example test_oddmembers:
+  oddmembers [0;1;0;2;3;0;0] = [1;3].
+Proof. reflexivity. Qed.
+
+Definition countoddmembers (l : natlist) : nat :=
+  length (oddmembers l).
+
+Example test_count_oddmembers1:
+  countoddmembers [1;0;3;1;4;5] = 4.
+Proof. reflexivity. Qed.
+
+Fixpoint alternate (l1 l2 : natlist) : natlist :=
+  match l1 with
+  | nil => l2
+  | h1 :: t1 => match l2 with
+              | nil => l1
+              | h2 :: t2 => h1 :: h2 :: (alternate t1 t2)
+              end
+  end.
+
+Example test_alternate1:
+  alternate [1;2;3] [4;5;6] = [1;4;2;5;3;6].
+Proof.
+  reflexivity. Qed.
+
+Example test_alternate2:
+  alternate [1] [4;5;6] = [1;4;5;6].
+Proof.
+  reflexivity. Qed.
+
+Example test_alternate3:
+  alternate [1;2;3] [4] = [1;4;2;3].
+Proof.
+  reflexivity. Qed.
+
+Example test_alternate4:
+  alternate [] [20;30] = [20;30].
+Proof.
+  reflexivity. Qed.
+
+Definition bag := natlist.
+
+Fixpoint count (v : nat) (s : bag) : nat :=
+  match s with
+  | nil => O
+  | h :: t => if (eqb h v) then S (count v t) else (count v t)
+  end.
+
+Example test_count := count 1 [1;2;3;1;4;1] = 3.
+Proof.
+  reflexivity. Qed.
+
