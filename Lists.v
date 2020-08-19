@@ -459,3 +459,5 @@ Proof.
   rewrite -> rev_involutive.
   reflexivity.
 Qed.
+
+End NatList.
