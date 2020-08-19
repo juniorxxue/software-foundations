@@ -153,3 +153,35 @@ Proof.
   - simpl. reflexivity.
   - simpl. rewrite -> rev_app_distr. rewrite -> IHl'. simpl. reflexivity.
 Qed.
+
+(* Polymorphic Pairs *)
+
+Inductive prod (X Y : Type) : Type :=
+  | pair (x : X) (y : Y).
+
+Arguments pair {X} {Y} _ _.
+
+Notation "( x , y )" := (pair x y).
+Notation " X * Y" := (prod X Y) : type_scope.
+
+Definition fst {X Y : Type} (p : X * Y) : X :=
+  match p with
+  | (x, y) => x
+  end.
+
+Definition snd {X Y : Type} (p : X * Y) : Y :=
+  match p with
+  | (x, y) => y
+  end.
+
+Fixpoint combine {X Y : Type} (lx : list X) (ly : list Y) : list (X*Y) :=
+  match lx, ly with
+  | [], _ => []
+  | _, [] => []
+  | x :: tx, y :: ty => (x, y) :: (combine tx ty)
+  end.
+
+Check @combine.
+
+Compute (combine [1;2] [false;false;true;true]).
+
