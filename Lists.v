@@ -433,3 +433,29 @@ Theorem leb_n_Sn : forall n,
   n <=? (S n) = true.
 Proof.
   intros n. induction n as [| n' IHn'].
+  - reflexivity.
+  - simpl. rewrite -> IHn'. reflexivity.
+Qed.
+
+Theorem remove_dos_not_increase_count: forall (s : bag),
+  (count 0 (remove_one 0 s)) <=? (count 0 s) = true.
+Proof.
+  intros s. induction s as [| n s' IHs'].
+  - reflexivity.
+  - simpl.
+    destruct n as [|n'] eqn:E.
+    * simpl. rewrite -> leb_n_Sn. reflexivity.
+    * simpl. rewrite -> IHs'. reflexivity.
+Qed.
+
+Search rev.
+
+Theorem rev_injective: forall (l1 l2 : natlist),
+  rev l1 = rev l2 -> l1 = l2.
+Proof.
+  intros l1 l2 H.
+  rewrite <- rev_involutive.
+  rewrite <- H.
+  rewrite -> rev_involutive.
+  reflexivity.
+Qed.
