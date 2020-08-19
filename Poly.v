@@ -1,4 +1,5 @@
 Set Warnings "-notation-overridden,-parsing".
+From SF Require Export Lists.
 
 Inductive list (X : Type) : Type :=
 | nil : list X
@@ -72,3 +73,83 @@ Inductive list' {X : Type} : Type :=
   | nil' : list'
   | cons' : X -> list'.
 
+Fixpoint app {X : Type} (l1 l2 : list X) : (list X) :=
+  match l1 with
+  | nil => l2
+  | cons h t => cons h (app t l2)
+  end.
+
+Fixpoint rev {X : Type} (l : list X) : list X :=
+  match l with
+  | nil => nil
+  | cons h t => app (rev t) (cons h nil)
+  end.
+
+Fixpoint length {X : Type} (l : list X) : nat :=
+  match l with
+  | nil => O
+  | cons h t => S (length t)
+  end.
+
+
+Example test_rev1 :
+  rev (cons 1 (cons 2 nil)) = (cons 2 (cons 1 nil)).
+Proof. reflexivity. Qed.
+Example test_rev2:
+  rev (cons true nil) = cons true nil.
+Proof. reflexivity. Qed.
+Example test_length1: length (cons 1 (cons 2 (cons 3 nil))) = 3.
+Proof. reflexivity. Qed.
+
+Definition mynil := @nil nat.
+
+Notation "x :: y" := (cons x y)
+                     (at level 60, right associativity).
+Notation "[ ]" := nil.
+Notation "[ x ; .. ; y ]" := (cons x .. (cons y []) ..).
+Notation "x ++ y" := (app x y)
+                     (at level 60, right associativity).
+
+Theorem app_nil_r : forall (X : Type), forall (l : list X),
+  l ++ [] = l.
+Proof.
+  intros X l. induction l as [| n l' IHl'].
+  - simpl. reflexivity.
+  - simpl. rewrite -> IHl'. reflexivity.
+Qed.
+
+Theorem app_assoc : forall A (l1 l2 l3 : list A),
+  l1 ++ l2 ++ l3 = (l1 ++ l2) ++ l3.
+Proof.
+  intros A l1 l2 l3.
+  induction l1 as [| n l' IHl'].
+  - simpl. reflexivity.
+  - simpl. rewrite -> IHl'. reflexivity.
+Qed.
+
+Lemma app_length : forall (X : Type) (l1 l2 : list X),
+  length (l1 ++ l2) = length l1 + length l2.
+Proof.
+  intros X l1 l2.
+  induction l1 as [| n l' IHl'].
+  - simpl. reflexivity.
+  - simpl. rewrite <- IHl'. reflexivity.
+Qed.
+
+Theorem rev_app_distr: forall X (l1 l2 : list X),
+  rev (l1 ++ l2) = rev l2 ++ rev l1.
+Proof.
+  intros X l1 l2.
+  induction l1 as [| n l' IHl'].
+  - simpl. rewrite -> app_nil_r. reflexivity.
+  - simpl. rewrite -> app_assoc. rewrite <- IHl'. reflexivity.
+Qed.
+
+Theorem rev_involutive: forall X : Type, forall l : list X,
+  rev (rev l) = l.
+Proof.
+  intros X l.
+  induction l as [| n l' IHl'].
+  - simpl. reflexivity.
+  - simpl. rewrite -> rev_app_distr. rewrite -> IHl'. simpl. reflexivity.
+Qed.
