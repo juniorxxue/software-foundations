@@ -293,7 +293,9 @@ Proof.
   intros X Y f l1 l2.
   induction l1 as [| n l1' IHl1'].
   - simpl. reflexivity.
-  - simpl.
+  - simpl. rewrite -> IHl1'. reflexivity.
+Qed.
+
 
 Theorem map_rev : forall (X Y : Type) (f : X -> Y) (l : list X),
   map f (rev l) = rev (map f l).
@@ -301,4 +303,27 @@ Proof.
   intros X Y f l.
   induction l as [| n l' IHl'].
   - simpl. reflexivity.
-  - simpl. 
+  - simpl. rewrite <- map_app_distr. simpl.
+    rewrite <- IHl'. reflexivity.
+Qed.
+
+Fixpoint flat_map {X Y : Type} (f : X -> list Y) (l : list X) : (list Y) :=
+  match l with
+  | nil => nil
+  | h :: t => (f h) ++ (flat_map f t)
+  end.
+Example test_flat_map1:
+  flat_map (fun n => [n;n;n]) [1;5;4]
+  = [1; 1; 1; 5; 5; 5; 4; 4; 4].
+Proof.
+  reflexivity. Qed.
+
+Check cons.
+
+Fixpoint fold {X Y : Type} (f : X -> Y -> Y) (l : list X) (b : Y) : Y :=
+  match l with
+  | nil => b
+  | (cons h t) => f h (fold f t b)
+  end.
+
+Compute fold plus [1;2;3;4] 0.
