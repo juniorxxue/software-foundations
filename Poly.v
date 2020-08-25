@@ -327,3 +327,29 @@ Fixpoint fold {X Y : Type} (f : X -> Y -> Y) (l : list X) (b : Y) : Y :=
   end.
 
 Compute fold plus [1;2;3;4] 0.
+
+Check (fold andb) : list bool -> bool -> bool.
+
+Example fold_example1:
+  fold mult [1;2;3;4] 1 = 24.
+Proof.
+  reflexivity. Qed.
+
+Example fold_example2:
+  fold andb [true;true;false;true] true = false.
+Proof.
+  reflexivity. Qed.
+
+Example fold_example3:
+  fold app [[1];[];[2;3];[4]] [] = [1;2;3;4].
+Proof.
+  reflexivity. Qed.
+
+Definition constfun {X : Type} (x : X) : (nat -> X) :=
+  fun (k : nat) => x.
+
+Definition ftrue := constfun true.
+
+Check plus : nat -> nat -> nat.
+
+Definition plus3 := plus 3.
