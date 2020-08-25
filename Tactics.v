@@ -128,3 +128,77 @@ Proof.
 Qed.
 
 Example injection_ex3 : forall (X : Type) (x y z : X) (l j : list X),
+  x :: y :: l = z :: j -> j = z :: l -> x = y.
+Proof.
+  intros.
+  injection H as eq1 eq2.
+  assert (H1 : y :: l = z :: l). rewrite eq2. rewrite H0. reflexivity.
+  injection H1 as eq3. rewrite eq1. rewrite eq3.
+  reflexivity.
+Qed.
+
+Theorem eqb_0_l : forall n,
+  0 =? n = true -> n = 0.
+Proof.
+  intros.
+  destruct n as [|n'] eqn:E.
+  - simpl. reflexivity.
+  - simpl. discriminate H.
+Qed.
+
+Theorem discriminate_ex1 : forall (n : nat),
+  S n = O -> 2 + 2 = 5.
+Proof.
+  intros n contra.
+  discriminate contra.
+Qed.
+
+Theorem discriminate_ex2 : forall (n m : nat),
+  false = true -> [n] = [m].
+Proof.
+  intros n m contra. discriminate contra. Qed.
+
+Example discriminate_ex3 : 
+  forall (X : Type) (x y z : X) (l j : list X),
+  x :: y :: l = [] -> x = z.
+Proof.
+  intros.
+  discriminate H.
+Qed.
+
+Theorem f_equal : forall (A B : Type) (f: A -> B) (x y: A),
+  x = y -> f x = f y.
+Proof. intros A B f x y eq. rewrite eq. reflexivity. Qed.
+
+Theorem eq_implies_succ_equal' : forall (n m : nat),
+    n = m -> S n = S m.
+Proof.
+  intros n m H.
+  f_equal. apply H. Qed.
+
+Theorem S_inj : forall (n m : nat) (b : bool),
+  (S n) =? (S m) = b ->
+  n =? m = b.
+Proof.
+  intros.
+  simpl in H.
+  apply H. Qed.
+
+Theorem silly3 : forall (n : nat),
+  (n =? 5 = true -> (S (S n)) =? 7 = true) -> true = (n =? 5) -> true = ((S (S n)) =? 7).
+Proof.
+  intros n eq H.
+  symmetry in H. apply eq in H. symmetry in H.
+  apply H. Qed.
+
+Theorem double_injective: forall n m,
+  double n = double m -> n = m.
+Proof.
+  intros n. induction n as [|n' IHn'].
+  - simpl. intros m eq. destruct m as [| m'] eqn:E.
+    + reflexivity.
+    + discriminate eq.
+  - simpl. intros m eq. destruct m as [| m'] eqn:E.
+    + discriminate eq.
+    + apply f_equal. apply IHn'. simpl in eq.
+      injection eq as goal. apply goal. Qed.
