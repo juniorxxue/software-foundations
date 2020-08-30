@@ -265,4 +265,43 @@ Proof.
       apply eqn'.
 Qed.
 
+Definition square n := (mult n n).
+
+Search mult.
+
+Definition sillyfun (n : nat) : bool :=
+  if n =? 3 then false
+  else if n =? 5 then false
+       else false.
+
+Theorem sillyfun_false : forall (n : nat),
+    sillyfun n = false.
+Proof.
+  intros n. unfold sillyfun.
+  destruct (n =? 3) eqn:E1.
+  - reflexivity.
+  - destruct (eqb n 5) eqn:E2.
+    + reflexivity.
+    + reflexivity.
+Qed.
+
+Fixpoint split {X Y : Type} (l : list (X * Y))
+  : (list X) * (list Y) :=
+  match l with
+  | [] => ([], [])
+  | (x, y) :: t =>
+    match split t with
+    | (lx, ly) => (x :: lx, y :: ly)
+    end
+  end.
+
+Theorem combine_split : forall X Y (l : list (X * Y)) l1 l2,
+    split l = (l1, l2) -> combine l1 l2 = l.
+Proof.
+  intros X Y l l1 l2 eq.
+  unfold combine.
+
+
+
+
 
