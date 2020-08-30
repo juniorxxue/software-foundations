@@ -202,3 +202,24 @@ Proof.
     + discriminate eq.
     + apply f_equal. apply IHn'. simpl in eq.
       injection eq as goal. apply goal. Qed.
+
+Theorem eqb_true : forall n m,
+    n =? m = true -> n = m.
+Proof.
+  intros n. induction n as [| n' IHn'].
+  - intros m eq. destruct m as [|m'] eqn:E.
+    + reflexivity.
+    + discriminate eq.
+  - intros m eq. destruct m as [| m'] eqn:E.
+    + discriminate eq.
+    + apply f_equal. apply IHn'. simpl in eq.
+      apply eq.
+Qed.
+
+Check plus_n_Sm.
+
+Theorem plus_n_n_injective : forall n m,
+    n + n = m + m -> n = m.
+Proof.
+  intros n. induction n as [|n' IHn'].
+  - intros m eq.
