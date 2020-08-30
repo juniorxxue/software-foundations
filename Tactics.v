@@ -217,9 +217,52 @@ Proof.
 Qed.
 
 Check plus_n_Sm.
+(* S (n + m) = n + S m *)
 
 Theorem plus_n_n_injective : forall n m,
     n + n = m + m -> n = m.
 Proof.
   intros n. induction n as [|n' IHn'].
-  - intros m eq.
+  - intros m eq. destruct m as [| m'] eqn:E.
+    + reflexivity.
+    + discriminate.
+  - intros m eq. destruct m as [| m'] eqn:E.
+    + discriminate.
+    + apply f_equal. apply IHn'. simpl in eq.
+      rewrite <- plus_n_Sm in eq.
+      rewrite <- plus_n_Sm in eq.
+      injection eq as eq1.
+      apply eq1.
+Qed.
+
+Theorem double_injective_take2 : forall n m,
+    double n = double m -> n = m.
+Proof.
+  intros n m.
+  generalize dependent n.
+  induction m as [| m' IHm'].
+  - simpl. intros n eq. destruct n as [|n'] eqn:E.
+    + reflexivity.
+    + discriminate.
+  - intros n eq. destruct n as [|n'] eqn:E.
+    + discriminate.
+    + f_equal. simpl in eq. injection eq as eq1.
+      apply IHm'. apply eq1.
+Qed.
+
+Theorem nth_error_after_last: forall (n : nat) (X : Type) (l : list X),
+    length l = n ->
+    nth_error l n = None.
+Proof.
+  intros n X l eq.
+  generalize dependent n.
+  induction l as [| nl l' IHl'].
+  - simpl. intros n eqn. reflexivity.
+  - intros n eqn. destruct n as [|n' IHn].
+    + simpl. discriminate.
+    + simpl. simpl in eqn.
+      apply IHl'. injection eqn as eqn'.
+      apply eqn'.
+Qed.
+
+
