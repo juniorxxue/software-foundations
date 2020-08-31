@@ -120,6 +120,39 @@ Proof.
   - right. simpl. reflexivity.
 Qed.
 
+Module MyNot.
+
+  Definition not (P : Prop) := P -> False.
+  Notation "~ x" := (not x) : type_scope.
+  Check not : Prop -> Prop.
+
+End MyNot.
+
+Theorem ex_falso_quodlibet : forall (P:Prop),
+    False -> P.
+Proof.
+  intros P contra.
+  destruct contra.
+Qed.
+
+Fact not_implies_our_not : forall (P : Prop),
+    not P -> (forall (Q: Prop), P -> Q).
+Proof.
+  intros.
+  destruct H.
+  apply H0.
+Qed.
+
+Notation "x <> y" := (~(x = y)).
+
+Theorem zero_not_one : 0 <> 1.
+Proof.
+  unfold not.
+  intros.
+  discriminate H.
+Qed.
+
+
 
 
 
