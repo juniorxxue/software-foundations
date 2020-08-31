@@ -298,8 +298,73 @@ Fixpoint split {X Y : Type} (l : list (X * Y))
 Theorem combine_split : forall X Y (l : list (X * Y)) l1 l2,
     split l = (l1, l2) -> combine l1 l2 = l.
 Proof.
-  intros X Y l l1 l2 eq.
-  unfold combine.
+  intros X Y l.
+  induction l as [| [x y] l'].
+  - intros l1 l2 eq.
+    inversion eq.
+    reflexivity.
+  - simpl. destruct (split l') as [l1' l2'].
+    simpl. intros l1 l2 eq. inversion eq.
+    simpl. f_equal. apply IHl'. reflexivity.
+Qed.
+
+Definition sillyfun1 (n : nat) : bool :=
+  if n =? 3 then true
+  else if n =? 5 then true
+       else false.
+
+Theorem sillyfun1_odd : forall (n : nat),
+    sillyfun1 n = true ->
+    oddb n = true.
+Proof.
+  intros n eq.
+  unfold sillyfun1 in eq.
+  destruct (n =? 3) eqn:Heqe3.
+  - apply eqb_true in Heqe3.
+    rewrite Heqe3. reflexivity.
+  - destruct (n =? 5) eqn:Heqe5.
+    + apply eqb_true in Heqe5.
+      rewrite Heqe5. reflexivity.
+    + discriminate eq.
+Qed.
+
+Theorem bool_fn_applied_thrice :
+  forall (f : bool -> bool) (b : bool),
+    f (f (f b)) = f b.
+Proof.
+  intros.
+  destruct b eqn:Eb.
+  destruct (f true) eqn:Eftrue.
+  destruct (f false) eqn:Efalse.
+  rewrite -> Eftrue.
+  apply Eftrue.
+  rewrite -> Eftrue.
+  apply Eftrue.
+  destruct (f false) eqn:Efalse.
+  apply Eftrue.
+  apply Efalse.
+  destruct (f true) eqn:Efture.
+  destruct (f false) eqn:Efalse.
+  rewrite -> Efture.
+  apply Efture.
+  rewrite -> Efalse.
+  apply Efalse.
+  destruct (f false) eqn:Efalse.
+  rewrite -> Efture.
+  apply Efalse.
+  rewrite -> Efalse.
+  apply Efalse.
+Qed.
+
+
+
+
+
+
+
+
+
+
 
 
 
