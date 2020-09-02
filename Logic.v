@@ -152,6 +152,31 @@ Proof.
   discriminate H.
 Qed.
 
+Theorem not_False :
+  not False.
+Proof.
+  unfold not.
+  intros H.
+  destruct H.
+Qed.
+
+Theorem contradiction_implies_anything : forall P Q : Prop,
+    (P /\ not P) -> Q.
+Proof.
+  intros P Q [HP HNA].
+  unfold not in HNA.
+  apply HNA in HP.
+  destruct HP.
+Qed.
+
+Theorem double_neg : forall P : Prop,
+    P -> ~~P.
+Proof.
+  intros P H.
+  unfold not.
+  intros G. apply G. apply H.
+Qed.
+
 
 
 
