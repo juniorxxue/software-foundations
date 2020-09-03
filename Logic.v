@@ -105,6 +105,17 @@ Proof.
     reflexivity.
 Qed.
 
+Lemma mult_eq_0:
+  forall n m : nat, n * m = 0 -> n = 0 \/ m = 0.
+Proof.
+  intros.
+  destruct n.
+  - left. reflexivity.
+  - destruct m.
+    + right. reflexivity.
+    + simpl in H. discriminate H.
+Qed.
+
 Lemma or_intro_l : forall A B : Prop, A -> A \/ B.
 Proof.
   intros A B HA.
@@ -176,6 +187,131 @@ Proof.
   unfold not.
   intros G. apply G. apply H.
 Qed.
+
+Theorem contrapositive : forall (P Q : Prop),
+    (P -> Q) -> (not Q -> not P).
+Proof.
+  intros.
+  unfold not.
+  intros.
+  apply H in H1.
+  unfold not in H0.
+  apply H0 in H1.
+  destruct H1.
+Qed.
+
+Theorem not_both_true_and_false : forall P : Prop,
+    not (P /\ not P).
+Proof.
+  intros.
+  unfold not.
+  intros [H1 H2].
+  apply H2 in H1.
+  destruct H1.
+Qed.
+
+Theorem not_true_is_false : forall b : bool,
+    b <> true -> b = false.
+Proof.
+  intros b H.
+  destruct b eqn:HE.
+  - (* b = True *)
+    unfold not in H.
+    apply ex_falso_quodlibet.
+    apply H. reflexivity.
+  - reflexivity.
+Qed.
+
+Theorem not_true_is_false' : forall b : bool,
+    b <> true -> b = false.
+Proof.
+  intros [] H.
+  - unfold not.
+    exfalso.
+    apply H. reflexivity.
+  - reflexivity.
+Qed.
+
+Module MyIff.
+  Definition iff (P Q : Prop) := (P -> Q) /\ (Q -> P).
+
+  Notation "P <-> Q" := (iff P Q)
+                          (at level 95, no associativity)
+                          : type_scope.
+End MyIff.
+
+Theorem iff_sym : forall P Q : Prop,
+    (P <-> Q) -> (Q <-> P).
+Proof.
+  intros.
+  split.
+  - apply H.
+  - apply H.
+Qed.
+
+Lemma not_true_iff_false : forall b,
+    b <> true <-> b = false.
+Proof.
+  intros. split.
+  - intros. apply not_true_is_false. apply H.
+  - intros H. rewrite H. intros H'. discriminate H'.
+Qed.
+
+Theorem or_distributes_over_and : forall P Q R : Prop,
+    P \/ (Q /\ R) <-> (P \/ Q) /\ (P \/ R).
+Proof.
+  intros P Q R.
+  split.
+  - intros [H1 | [H2 H3]].
+    + split.
+      * left. apply H1.
+      * left. apply H1.
+    + split.
+      * right. apply H2.
+      * right. apply H3.
+  - intros [[H1 | H2] [H3 | H4]].
+    + left. apply H1.
+    + left. apply H1.
+    + left. apply H3.
+    + right. split.
+      * apply H2.
+      * apply H4.
+Qed.
+
+From Coq Require Import Setoids.Setoid.
+
+Lemma mult_0 : forall n m, n * m = 0 <-> n = 0 \/ m = 0.
+Proof.
+  split.
+  - apply mult_eq_0.
+  - apply eq_mult_0.
+Qed.
+
+Theorem or_assoc :
+  forall P Q R : Prop, P \/ (Q \/ R) <-> (P \/ Q) \/ R.
+Proof.
+  intros P Q R.
+  split.
+  - intros [H1 | [H2 | H3]].
+    + left. left. apply H1.
+    + left. right. apply H2.
+    + right. apply H3.
+  - intros [[H1 | H2] | H3].
+    + left. apply H1.
+    + right. left. apply H2.
+    + right. right. apply H3.
+Qed.
+
+
+
+
+
+
+
+
+
+
+
 
 
 
