@@ -302,6 +302,212 @@ Proof.
     + right. right. apply H3.
 Qed.
 
+Lemma mult_0_3 :
+  forall n m p, n * m * p = 0 <-> n = 0 \/ m = 0 \/ p = 0.
+Proof.
+  intros n m p.
+  rewrite mult_0. rewrite mult_0.
+  rewrite or_assoc.
+  reflexivity.
+Qed.
+
+Lemma apply_iff_example :
+  forall n m : nat, n * m = 0 -> n = 0 \/ m = 0.
+Proof.
+  intros n m H.
+  apply mult_0. apply H.
+Qed.
+
+Definition even x := exists n : nat, x = double n.
+
+Lemma four_is_even :
+  even 4.
+Proof.
+  unfold even.
+  exists 2.
+  reflexivity.
+Qed.
+
+Theorem exists_example_2 : forall n,
+    (exists m, n = 4 + m) -> (exists o, n = 2 + o).
+Proof.
+  intros n [m Hm].
+  exists (2 + m).
+  simpl.
+  apply Hm.
+Qed.
+
+Theorem dist_not_exists : forall (X : Type) (P : X -> Prop),
+    (forall x, P x) -> not (exists x, not (P x)).
+Proof.
+  intros X P H.
+  unfold not.
+  intros [x H0].
+  apply H0.
+  apply H.
+Qed.
+
+Theorem dist_exists_or : forall (X : Type) (P Q : X -> Prop),
+    (exists x, P x \/ Q x) <-> (exists x, P x) \/ (exists x, Q x).
+Proof.
+  intros X P Q.
+  split.
+  - intros [x [H1 | H2]].
+    + left. exists x. apply H1.
+    + right. exists x. apply H2.
+  - intros [[x1 H1] | [x2 H2]].
+    + exists x1. left. apply H1.
+    + exists x2. right. apply H2.
+Qed.
+
+Fixpoint In {A : Type} (x : A) (l : list A) : Prop :=
+  match l with
+  | [] => False
+  | x' :: l' => x' = x \/ In x l'
+  end.
+
+Example In_example_l : In 4 [1;2;3;4;5].
+Proof.
+  simpl. right. right. right. left.
+  reflexivity.
+Qed.
+
+Example In_example_2 :
+  forall n, In n [2;4] -> exists n', n = 2 * n'.
+Proof.
+  simpl.
+  intros n [H | [H | []]].
+  - exists 1. rewrite <- H. reflexivity.
+  - exists 2. rewrite <- H. reflexivity.
+Qed.
+
+Theorem In_map :
+  forall (A B : Type) (f : A -> B) (l : list A) (x : A),
+    In x l -> In (f x) (map f l).
+Proof.
+  intros until x.
+  induction l as [| x' l' IHl'].
+  - simpl. intros. apply H.
+  - simpl. intros [H | H].
+    + rewrite H. left. reflexivity.
+    + right. apply IHl'. apply H.
+Qed.
+
+Check plus_comm.
+
+Theorem in_not_nil :
+  forall A (x : A) (l : list A), In x l -> l <> [].
+Proof.
+  intros A x l H.
+  unfold not.
+  intros.
+  rewrite H0 in H.
+  simpl in H.
+  apply H.
+Qed.
+
+Axiom functional_extensionality : forall {X Y : Type}
+                                    {f g : X -> Y},
+    (forall (x : X), f x = g x) -> f = g.
+
+Example function_extensionality_ex2:
+  (fun x => plus x 1) = (fun x => plus 1 x).
+Proof.
+  apply functional_extensionality.
+  intros.
+  apply plus_comm.
+Qed.
+
+Fixpoint rev_append {X} (l1 l2 : list X) : list X :=
+  match l1 with
+  | [] => l2
+  | x :: l1' => rev_append l1' (x :: l2)
+  end.
+
+Definition tr_rev {X} (l : list X) : list X :=
+  rev_append l [].
+
+Lemma tr_rev_lemma:
+  forall X (l1 l2 : list X),
+    rev_append l1 l2 = rev l1 ++ l2.
+Proof.
+  intros X l1.
+  induction l1.
+  - intros l2. reflexivity.
+  - intros l2. simpl. rewrite <- app_assoc. simpl. apply IHl1.
+Qed.
+
+Theorem tr_rev_correct : forall X, @tr_rev X = @rev X.
+Proof.
+  intros.
+  apply functional_extensionality.
+  intros.
+  unfold tr_rev.
+  rewrite tr_rev_lemma.
+  apply app_nil_r.
+Qed.
+
+Check app_nil_r.
+
+Lemma evenb_double : forall k, evenb (double k) = true.
+Proof.
+  intros.
+  induction k.
+  - simpl. reflexivity.
+  - simpl. apply IHk.
+Qed.
+
+Check evenb_S.
+
+Search double.
+
+Lemma evenb_double_conv : forall n, exists k,
+      n = if evenb n
+          then double k
+          else S (double k).
+Proof.
+  intros.
+  induction n.
+  - simpl. exists 0. reflexivity.
+  - rewrite evenb_S. simpl.
+    destruct (evenb n) eqn:E.
+    + simpl. destruct IHn as [k H].
+      rewrite H. exists k. reflexivity.
+    + simpl. destruct IHn. exists (S x).
+      rewrite H. reflexivity.
+Qed.
+
+Check even.
+
+Theorem even_bool_prop : forall n,
+    evenb n = true <-> even n.
+Proof.
+  intros n.
+  split.
+  - intros. destruct (evenb_double_conv n) as [k Hk].
+    rewrite H in Hk. rewrite Hk. simpl. exists k. reflexivity.
+  - intros [k Hk]. rewrite Hk. apply evenb_double.
+Qed.
+
+Theorem eqb_eq : forall n1 n2 : nat,
+    n1 =? n2 = true <-> n1 = n2.
+Proof.
+  Admitted.
+
+Lemma plus_eqb_example : forall n m p: nat,
+    n =? m = true -> n + p =? m + p = true.
+Proof.
+  Admitted.
+
+
+
+
+
+
+
+
+
+
 
 
 
