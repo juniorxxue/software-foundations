@@ -1,6 +1,9 @@
 Set Warnings "-notaion-overridden, -parsing".
 From SF Require Export Tactics.
 
+Check forall n : nat, pred (S n) = n.
+Check fun n: nat => S (pred n) = n.
+
 Definition injective {A B} (f : A -> B) :=
   forall x y : A, f x = f y -> x = y.
 
@@ -160,7 +163,7 @@ Theorem zero_not_one : 0 <> 1.
 Proof.
   unfold not.
   intros.
-  discriminate H.
+  destruct H.
 Qed.
 
 Theorem not_False :
