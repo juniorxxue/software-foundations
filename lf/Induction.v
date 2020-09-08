@@ -1,5 +1,5 @@
 Set Nested Proofs Allowed.
-From SF Require Export Basics.
+From LF Require Export Basics.
 
 Theorem plus_n_0_firsttry : forall n:nat,
   n = n + 0.

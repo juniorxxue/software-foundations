@@ -1,6 +1,6 @@
 Set Warnings "-notation-overridden,-parsing".
 
-From SF Require Export Lists.
+From LF Require Export Lists.
 
 Inductive list (X : Type) : Type :=
 | nil : list X

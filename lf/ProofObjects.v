@@ -1,5 +1,5 @@
 Set Warnings "-notation-overridden,-parsing".
-From SF Require Export IndProp.
+From LF Require Export IndProp.
 Theorem ev_4'' : ev 4.
 Proof.
   Show Proof.

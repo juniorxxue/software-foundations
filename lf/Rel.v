@@ -1,5 +1,5 @@
 Set Warnings "-notation-overridden,-parsing".
-From SF Require Export IndProp.
+From LF Require Export IndProp.
 
 Definition relation (X : Type) := X -> X -> Prop.
 

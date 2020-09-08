@@ -1,4 +1,4 @@
-From SF Require Export Induction.
+From LF Require Export Induction.
 Module NatList.
 
 Inductive natprod : Type :=

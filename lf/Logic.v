@@ -1,5 +1,5 @@
 Set Warnings "-notaion-overridden, -parsing".
-From SF Require Export Tactics.
+From LF Require Export Tactics.
 
 Check forall n : nat, pred (S n) = n.
 Check fun n: nat => S (pred n) = n.

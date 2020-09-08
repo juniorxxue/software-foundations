@@ -1,4 +1,4 @@
-From SF Require Export Poly.
+From LF Require Export Poly.
 
 (* the goal to be proved is exactly the same as some hypothesis in the context 
 or some previously proved lemma. *)

@@ -1,5 +1,5 @@
 Set Warnings "-notation-overridden,-parsing".
-From SF Require Export Logic.
+From LF Require Export Logic.
 From Coq Require Export Lia.
 
 Inductive ev : nat -> Prop :=
