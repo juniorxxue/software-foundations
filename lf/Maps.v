@@ -160,8 +160,8 @@ Example examplemap'' :=
 Definition inclusion {A : Type} (m m' : partial_map A) :=
   forall x v, m x = Some v -> m' x = Some v.
 
-Definition inclusion_update : forall (A : Type) (m m' : partial_map A) x vx,
-    inclusion m m' -> inclusion (x |-> vx ; m) (x |-> vx ; m').
+(* Definition inclusion_update : forall (A : Type) (m m' : partial_map A) x vx, *)
+(*     inclusion m m' -> inclusion (x |-> vx ; m) (x |-> vx ; m'). *)
 
 
 
