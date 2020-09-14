@@ -36,6 +36,7 @@ Definition cequiv (c1 c2 : com) : Prop :=
   forall (st st' : state),
     (st =[ c1 ]=> st') <-> (st =[ c2 ]=> st').
 
+
 Theorem skip_left : forall c,
     cequiv
     <{ skip; c }>
@@ -53,6 +54,7 @@ Qed.
 Check E_Seq.
 Check E_Skip.
 
+
 Theorem skip_right : forall c,
     cequiv
     <{ c; skip }>
@@ -63,8 +65,55 @@ Proof.
   - inversion H. subst.
     inversion H5. subst.
     assumption.
-  - assert (H: st' =[ skip ]=> st').{
-      apply E_Skip.
-    }.
+  - intros.
+    apply E_Seq with st'.
+    assumption.
+    apply E_Skip.
+Qed.
 
+Theorem if_true_simple : forall c1 c2,
+    cequiv
+    <{ if true then c1 else c2 end }>
+    c1.
+Proof.
+  intros.
+  split.
+  intros H.
+  - inversion H; subst. assumption. discriminate.
+  - apply E_IfTrue. reflexivity. Qed.
 
+Theorem if_true: forall b c1 c2,
+  bequiv b <{true}> ->
+  cequiv
+    <{ if b then c1 else c2 end }>
+    c1.
+Proof.
+  intros b c1 c2 Hb.
+  split; intros H.
+  - (* -> *)
+    inversion H; subst.
+    + (* b evaluates to true *)
+      assumption.
+    + (* b evaluates to false (contradiction) *)
+      unfold bequiv in Hb. simpl in Hb.
+      rewrite Hb in H5.
+      discriminate.
+  - (* <- *)
+    apply E_IfTrue; try assumption.
+    unfold bequiv in Hb. simpl in Hb.
+    apply Hb. Qed.
+
+Theorem if_false : forall b c1 c2,
+    bequiv b <{ false }> ->
+    cequiv
+    <{ if b then c1 else c2 end }>
+    c2.
+Proof.
+  intros.
+  split; intros.
+  - inversion H0. subst.
+    + unfold bequiv in H. simpl in H.
+      assert (Hd: beval st b = false).
+      apply H.
+      rewrite Hd in H6.
+      inversion H6.
