@@ -19,23 +19,9 @@ Definition bequiv (b1 b2 : bexp) : Prop :=
   forall (st : state),
     beval st b1 = beval st b2.
 
-Theorem aequiv_example : aequiv <{X - X}> <{ 0 }>.
-Proof.
-  intros st. simpl. lia.
-Qed.
-
-Theorem bequiv_example : bequiv <{X - X = 0}> <{ true }>.
-Proof.
-  intros st.
-  unfold beval.
-  rewrite aequiv_example.
-  reflexivity.
-Qed.
-
 Definition cequiv (c1 c2 : com) : Prop :=
   forall (st st' : state),
     (st =[ c1 ]=> st') <-> (st =[ c2 ]=> st').
-
 
 Theorem skip_left : forall c,
     cequiv
@@ -50,10 +36,6 @@ Proof.
   - apply E_Seq.
     apply E_Skip.
 Qed.
-
-Check E_Seq.
-Check E_Skip.
-
 
 Theorem skip_right : forall c,
     cequiv
@@ -103,17 +85,74 @@ Proof.
     unfold bequiv in Hb. simpl in Hb.
     apply Hb. Qed.
 
+(* Unset Printing Notations. *)
+
 Theorem if_false : forall b c1 c2,
     bequiv b <{ false }> ->
     cequiv
     <{ if b then c1 else c2 end }>
     c2.
 Proof.
+  intros b c1 c2 Hb.
+  split; intros H.
+  - (* -> *)
+    inversion H; subst.
+    + (* b is true *)
+      unfold bequiv in Hb. simpl in Hb.
+      rewrite Hb in H5.
+      discriminate.
+    + (* b is false *)
+      assumption.
+  - (* <- *)
+    apply E_IfFalse.
+    unfold bequiv in Hb. simpl in Hb.
+    apply Hb. assumption.
+Qed.
+
+Theorem swap_if_branches : forall b c1 c2,
+  cequiv
+    <{ if b then c1 else c2 end }>
+    <{ if ~ b then c2 else c1 end }>.
+Proof.
+  intros.
+  unfold cequiv. intros.
+  split.
+  - intros.
+    inversion H; subst.
+    + apply E_IfFalse.
+      simpl. rewrite H5. trivial. trivial.
+    + apply E_IfTrue.
+      simpl. rewrite H5. trivial. trivial.
+  - intros.
+    inversion H; subst.
+    + apply E_IfFalse.
+      simpl in H5.
+      assert (Hnegb: negb (negb (beval st b)) = beval st b).
+      eapply negb_involutive.
+      rewrite <- Hnegb. rewrite H5. trivial. trivial.
+    + apply E_IfTrue.
+      simpl in H5.
+      assert (Hnegb: negb (negb (beval st b)) = beval st b).
+      eapply negb_involutive.
+      rewrite <- Hnegb. rewrite H5. trivial. trivial.
+Qed.
+
+Theorem while_false : forall b c,
+  bequiv b <{false}> ->
+  cequiv
+    <{ while b do c end }>
+    <{ skip }>.
+Proof.
+  intros.
+  unfold cequiv.
   intros.
   split; intros.
-  - inversion H0. subst.
+  - inversion H0; subst; clear H0.
+    + constructor.
     + unfold bequiv in H. simpl in H.
-      assert (Hd: beval st b = false).
-      apply H.
-      rewrite Hd in H6.
-      inversion H6.
+      pose proof (H st) as Contra.
+      rewrite H3 in Contra. inversion Contra.
+  - inversion H0; subst.
+    apply E_WhileFalse.
+    apply H.
+Qed.
