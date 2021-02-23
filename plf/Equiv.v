@@ -156,3 +156,169 @@ Proof.
     apply E_WhileFalse.
     apply H.
 Qed.
+
+Lemma refl_aequiv : forall (a : aexp), aequiv a a.
+Proof.
+  intros a st. reflexivity.  Qed.
+
+Lemma sym_aequiv : forall (a1 a2 : aexp),
+  aequiv a1 a2 -> aequiv a2 a1.
+Proof.
+  intros a1 a2 H. intros st. symmetry. apply H.  Qed.
+
+Lemma trans_aequiv : forall (a1 a2 a3 : aexp),
+  aequiv a1 a2 -> aequiv a2 a3 -> aequiv a1 a3.
+Proof.
+  unfold aequiv. intros a1 a2 a3 H12 H23 st.
+  rewrite (H12 st). rewrite (H23 st). reflexivity.  Qed.
+
+Lemma refl_bequiv : forall (b : bexp), bequiv b b.
+Proof.
+  unfold bequiv. intros b st. reflexivity.  Qed.
+
+Lemma sym_bequiv : forall (b1 b2 : bexp),
+  bequiv b1 b2 -> bequiv b2 b1.
+Proof.
+  unfold bequiv. intros b1 b2 H. intros st. symmetry. apply H.  Qed.
+
+Lemma trans_bequiv : forall (b1 b2 b3 : bexp),
+  bequiv b1 b2 -> bequiv b2 b3 -> bequiv b1 b3.
+Proof.
+  unfold bequiv. intros b1 b2 b3 H12 H23 st.
+  rewrite (H12 st). rewrite (H23 st). reflexivity.  Qed.
+
+Lemma refl_cequiv : forall (c : com), cequiv c c.
+Proof.
+  unfold cequiv. intros c st st'. reflexivity.  Qed.
+
+Lemma sym_cequiv : forall (c1 c2 : com),
+  cequiv c1 c2 -> cequiv c2 c1.
+Proof.
+  unfold cequiv. intros c1 c2 H st st'.
+  rewrite H. reflexivity.
+Qed.
+
+Lemma trans_cequiv : forall (c1 c2 c3 : com),
+  cequiv c1 c2 -> cequiv c2 c3 -> cequiv c1 c3.
+Proof.
+  unfold cequiv. intros c1 c2 c3 H12 H23 st st'.
+  rewrite H12. apply H23.
+Qed.
+
+Theorem CAss_congruence : forall x a a',
+  aequiv a a' ->
+  cequiv <{x := a}> <{x := a'}>.
+Proof.
+  intros.
+  split.
+  - intros. inversion H0; subst. apply E_Ass. rewrite H. trivial.
+  - intros. inversion H0; subst. apply E_Ass. rewrite H. trivial.
+Qed.
+
+Definition atrans_sound (atrans : aexp -> aexp) : Prop :=
+  forall (a : aexp),
+    aequiv a (atrans a).
+
+Definition btrans_sound (btrans : bexp -> bexp) : Prop :=
+  forall (b : bexp),
+    bequiv b (btrans b).
+
+Definition ctrans_sound (ctrans : com -> com) : Prop :=
+  forall (c : com),
+    cequiv c (ctrans c).
+
+Fixpoint fold_constants_aexp (a : aexp) : aexp :=
+  match a with
+  | ANum n       => ANum n
+  | AId x        => AId x
+  | <{ a1 + a2 }>  =>
+    match (fold_constants_aexp a1,
+           fold_constants_aexp a2)
+    with
+    | (ANum n1, ANum n2) => ANum (n1 + n2)
+    | (a1', a2') => <{ a1' + a2' }>
+    end
+  | <{ a1 - a2 }> =>
+    match (fold_constants_aexp a1,
+           fold_constants_aexp a2)
+    with
+    | (ANum n1, ANum n2) => ANum (n1 - n2)
+    | (a1', a2') => <{ a1' - a2' }>
+    end
+  | <{ a1 * a2 }>  =>
+    match (fold_constants_aexp a1,
+           fold_constants_aexp a2)
+    with
+    | (ANum n1, ANum n2) => ANum (n1 * n2)
+    | (a1', a2') => <{ a1' * a2' }>
+    end
+  end.
+
+Fixpoint fold_constants_bexp (b : bexp) : bexp :=
+  match b with
+  | <{true}>        => <{true}>
+  | <{false}>       => <{false}>
+  | <{ a1 = a2 }>  =>
+      match (fold_constants_aexp a1,
+             fold_constants_aexp a2) with
+      | (ANum n1, ANum n2) =>
+          if n1 =? n2 then <{true}> else <{false}>
+      | (a1', a2') =>
+          <{ a1' = a2' }>
+      end
+  | <{ a1 <= a2 }>  =>
+      match (fold_constants_aexp a1,
+             fold_constants_aexp a2) with
+      | (ANum n1, ANum n2) =>
+          if n1 <=? n2 then <{true}> else <{false}>
+      | (a1', a2') =>
+          <{ a1' <= a2' }>
+      end
+  | <{ ~ b1 }>  =>
+      match (fold_constants_bexp b1) with
+      | <{true}> => <{false}>
+      | <{false}> => <{true}>
+      | b1' => <{ ~ b1' }>
+      end
+  | <{ b1 && b2 }>  =>
+      match (fold_constants_bexp b1,
+             fold_constants_bexp b2) with
+      | (<{true}>, <{true}>) => <{true}>
+      | (<{true}>, <{false}>) => <{false}>
+      | (<{false}>, <{true}>) => <{false}>
+      | (<{false}>, <{false}>) => <{false}>
+      | (b1', b2') => <{ b1' && b2' }>
+      end
+  end.
+
+Fixpoint fold_constants_com (c : com) : com :=
+  match c with
+  | <{ skip }> =>
+      <{ skip }>
+  | <{ x := a }> =>
+      <{ x := (fold_constants_aexp a) }>
+  | <{ c1 ; c2 }>  =>
+      <{ fold_constants_com c1 ; fold_constants_com c2 }>
+  | <{ if b then c1 else c2 end }> =>
+      match fold_constants_bexp b with
+      | <{true}>  => fold_constants_com c1
+      | <{false}> => fold_constants_com c2
+      | b' => <{ if b' then fold_constants_com c1
+                       else fold_constants_com c2 end}>
+      end
+  | <{ while b do c1 end }> =>
+      match fold_constants_bexp b with
+      | <{true}> => <{ while true do skip end }>
+      | <{false}> => <{ skip }>
+      | b' => <{ while b' do (fold_constants_com c1) end }>
+      end
+  end.
+
+Theorem fold_constants_aexp_sound :
+  atrans_sound fold_constants_aexp.
+Proof.
+  unfold atrans_sound. intros a. unfold aequiv. intros st.
+  induction a; simpl; try reflexivity;
+    try (destruct (fold_constants_aexp a1);
+         destruct (fold_constants_aexp a2);
+         rewrite IHa1; rewrite IHa2; reflexivity).
