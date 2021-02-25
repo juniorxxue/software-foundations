@@ -9,6 +9,7 @@ From PLF Require Export Imp.
 
 Definition Assertion := state -> Prop.
 
+(* assertion is a proposition/property of a state *)
 
 Definition assert_implies (P Q : Assertion) : Prop :=
   forall st, P st -> Q st.
@@ -66,15 +67,10 @@ Definition ap {X} (f : nat -> X) (x : Aexp) :=
 Definition ap2 {X} (f : nat -> nat -> X) (x : Aexp) (y : Aexp) (st : state) :=
   f (x st) (y st).
 
-
-Definition assn1 : Assertion := X <= Y.
-
-Definition hoare_triple
-           (P : Assertion) (c : com) (Q : Assertion) : Prop :=
+Definition hoare_triple (P : Assertion) (c : com) (Q : Assertion) : Prop :=
   forall st st',
      st =[ c ]=> st'  ->
-     P st  ->
-     Q st'.
+     P st  -> Q st'.
 
 Notation "{{ P }}  c  {{ Q }}" :=
   (hoare_triple P c Q) (at level 90, c custom com at level 99)
